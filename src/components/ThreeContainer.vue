@@ -1,5 +1,7 @@
 <script setup>
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { onMounted } from "vue";
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
 	45,
@@ -13,12 +15,25 @@ const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xbbffaa });
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 scene.add(cube);
-const render = new THREE.WebGLRenderer();
-render.setSize(window.innerWidth, window.innerHeight);
-document.getElementById("app").append(render.domElement);
-render.render(scene, camera);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+// 创建轨道控制器
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.update();
+function animate() {
+	requestAnimationFrame(animate);
+	// 先更新轨道控制器对相机的更改 然后重新渲染
+	controls.update();
+	renderer.render(scene, camera);
+}
+
+animate();
+onMounted(() => {
+	document.getElementById("container").append(renderer.domElement);
+});
 </script>
 
 <template>
+	<div id="container"></div>
 </template>
 <style scoped></style>
