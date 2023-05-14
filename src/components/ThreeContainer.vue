@@ -23,10 +23,12 @@ controls.update();
 function animate() {
 	requestAnimationFrame(animate);
 	// 先更新轨道控制器对相机的更改 然后重新渲染
-    controls.update();
-    // 更改物体的位置
-    cube.position.x += 0.01;
-    cube.position.x = cube.position.x > 5 ? 0 : cube.position.x;
+	controls.update();
+	// 更改物体的位置
+	cube.position.x += 0.01;
+	cube.position.x = cube.position.x > 5 ? 0 : cube.position.x;
+	const scale = Math.sin(Date.now() / 1000) * 0.5 + 0.5;
+    cube.scale.set(scale, scale, scale);
 	renderer.render(scene, camera);
 }
 // 添加坐标轴辅助器
