@@ -20,24 +20,22 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // 创建轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
-function animate(time) {
-    console.log(time);
+const clock = new THREE.Clock();
+function animate() {
 	requestAnimationFrame(animate);
+	const time = clock.getDelta();
+	cube.position.x += 0.5 * time;
 	// 先更新轨道控制器对相机的更改 然后重新渲染
-    cube.position.x = time / 1000 * 0.5;
-    if (cube.position.x > 5) { 
-        cube.position.x = 0;
-    }
-    controls.update();
+	controls.update();
 	renderer.render(scene, camera);
 }
-cube.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), Math.PI/4);
+cube.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), Math.PI / 4);
 // 添加坐标轴辅助器
 const axesHelper = new THREE.AxesHelper(3);
 scene.add(axesHelper);
 animate();
 onMounted(() => {
-    document.getElementById("container").append(renderer.domElement);
+	document.getElementById("container").append(renderer.domElement);
 });
 </script>
 
