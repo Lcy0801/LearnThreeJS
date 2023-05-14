@@ -12,6 +12,7 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 0, 10);
 scene.add(camera);
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+// 
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xbbffaa });
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 scene.add(cube);
@@ -26,7 +27,9 @@ function animate() {
 	controls.update();
 	renderer.render(scene, camera);
 }
-
+// 添加坐标轴辅助器
+const axesHelper = new THREE.AxesHelper(3);
+scene.add(axesHelper);
 animate();
 onMounted(() => {
 	document.getElementById("container").append(renderer.domElement);
