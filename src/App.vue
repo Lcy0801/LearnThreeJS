@@ -1,11 +1,9 @@
 <script setup>
-import ThreeContainer from './components/ThreeContainer.vue';
+import MapRender from "./components/MapRender.vue";
 </script>
 
 <template>
-  <ThreeContainer></ThreeContainer>
+	<MapRender></MapRender>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
