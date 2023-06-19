@@ -2,6 +2,32 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { onMounted } from "vue";
+import EarCut from "../EarCut.js";
+import Polygon from "../data/polygon.json";
+// let polygon = {
+// 	type: "Polygon",
+// 	coordinates: [
+// 		[
+// 			[0.059701492537314, 0.388937664618086, 0],
+// 			[-0.344161545215101, 0.013169446883231, 0],
+// 			[0.370500438981563, -0.216856892010536, 0],
+// 			[0.567164179104478, 0.515364354697103, 0],
+// 			[0.012291483757682, 0.69622475856014, 0],
+// 			[-0.528533801580333, 0.417032484635645, 0],
+// 		],
+// 	],
+// };
+
+// polygon = {
+// 	type: 'Feature',
+// 	properties: {},
+// 	geometry: polygon
+// };
+
+let polygon = Polygon.features[0];
+const earcut = new EarCut(polygon);
+earcut.triangulate();
+console.log(earcut.getTriangleFaces());
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
 	45,
