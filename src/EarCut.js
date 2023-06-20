@@ -103,7 +103,7 @@ const rayIntersectionLineSegment = (point, rayNormal, start, end) => {
 		return null;
 	}
 	let res = [point[0] + t0 * rayNormal[0], point[1] + t0 * rayNormal[1]];
-	return res;
+	return [res, t0, t1 / lsDist];
 };
 
 class EarCut {
@@ -276,7 +276,6 @@ class EarCut {
 		if (angle < 0) {
 			angle += Math.PI * 2;
 		}
-		console.log((angle / Math.PI) * 180, this.dirFlag);
 		return angle < Math.PI;
 	}
 
@@ -303,6 +302,110 @@ class EarCut {
 			});
 		}
 		// 当多边形含有岛洞时找出一对互相可见点 将其转化为简单多边形
+		
+	}
+	// 在内环和外环上分别寻找一个点，组成一对相互可见点
+	_getVisiblePoints(inRing, outRing) {
+		let inVisiblePoint;
+		let inVisibleIndex;
+		// 找到内环最右侧的点
+		inRing.forEach((point, index) => {
+			if (index === 0) {
+				inVisiblePoint = [...point];
+				inVisibleIndex = index;
+			} else if (point[0] > inVisiblePoint[0]) {
+				inVisiblePoint = [...point];
+				inVisibleIndex = index;
+			}
+		});
+		// 求解以内环最右侧点为起点指向x轴正向的射线与外环的交点
+		let nearestIntersection = null;
+		outRing.forEach((point, index) => {
+			let start = [...point];
+			let indexNext = index === outRing.length - 1 ? 0 : index + 1;
+			let end = outRing[indexNext];
+			let intersection = rayIntersectionLineSegment(
+				inVisiblePoint,
+				[1, 0, 0],
+				start,
+				end
+			);
+			if (intersection) {
+				if (nearestIntersection) {
+					if (nearestIntersection[1] > intersection[1]) {
+						nearestIntersection = [
+							...intersection,
+							index,
+							indexNext,
+						];
+					}
+				} else {
+					nearestIntersection = [...intersection, index, indexNext];
+				}
+			}
+		});
+		let outVisiblePoint;
+		let outVisibleIndex;
+		if (nearestIntersection[2] === 0) {
+			outVisiblePoint = outRing[nearestIntersection[3]];
+			outVisibleIndex = nearestIntersection[3];
+		} else if (nearestIntersection[2] === 1) {
+			outVisiblePoint = outRing[nearestIntersection[4]];
+			outVisibleIndex = nearestIntersection[4];
+		} else {
+			if (
+				outRing[nearestIntersection[3]][0] >
+				outRing[nearestIntersection[4]][0]
+			) {
+				outVisibleIndex = nearestIntersection[3];
+			} else {
+				outVisibleIndex = nearestIntersection[4];
+			}
+			outVisiblePoint = outRing[outVisibleIndex];
+			// 判断是否有其它的外环点在outVisiblePoint inVisiblePoint nearestIntersection组成的三角形内部
+			let angle = null;
+			let vectorX = [
+				nearestIntersection[0][0] - inVisiblePoint[0],
+				nearestIntersection[0][1] - inVisiblePoint[1],
+			];
+			vectorX = vectorNormalize(vectorX);
+			outRing.forEach((point, index) => {
+				if (
+					isInTriangle(
+						inVisiblePoint,
+						outVisiblePoint,
+						nearestIntersection[0],
+						point
+					)
+				) {
+					if (!angle) {
+						outVisibleIndex = index;
+						outVisiblePoint = [...point];
+						let vectorOut = [
+							point[0] - inVisiblePoint[0],
+							point[1] - inVisiblePoint[1],
+						];
+						vectorOut = vectorNormalize(vectorOut);
+						angle = vectorDot(vectorX, vectorOut);
+					} else {
+						let vectorOut = [
+							point[0] - inVisiblePoint[0],
+							point[1] - inVisiblePoint[1],
+						];
+						vectorOut = vectorNormalize(vectorOut);
+						let tmpAngle = vectorDot(vectorX, vectorOut);
+						if (tmpAngle > angle) {
+							outVisiblePoint = [...point];
+							outVisibleIndex = index;
+							angle = tmpAngle;
+						}
+					}
+				}
+			});
+		}
+		// outVisiblePoint inVisiblePoint 组成了一对相互可见的点
+		// 返回相互可见点在内外环的索引
+		return [inVisibleIndex, outVisibleIndex];
 	}
 }
 export default EarCut;
